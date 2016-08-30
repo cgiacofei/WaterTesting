@@ -1,7 +1,6 @@
 import os
-from flask import Flask, render_template_string
 from flask_sqlalchemy import SQLAlchemy
-from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
+from flask_user import UserMixin
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from WaterTesting import app
@@ -14,7 +13,6 @@ class BaseModel(db.Model)
     modified = db.Column(db.DateTime())
 
 
-# Define the User data model. Make sure to add flask.ext.user UserMixin !!!
 class User(BaseModel, UserMixin):
 
     # User authentication information
