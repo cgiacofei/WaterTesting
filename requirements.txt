@@ -1,4 +1,10 @@
 awesome-slugify==1.6.5
 Flask==0.11.1
+Flask-Login==0.3.2
+Flask-Mail==0.9.1
+Flask-SQLAlchemy==2.1
+Flask-User==0.6.8
+Flask-WTF==0.12
 nose==1.3.7
 pandas==0.18.1
+SQLAlchemy==1.0.14
