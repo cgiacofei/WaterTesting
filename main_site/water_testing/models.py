@@ -1,19 +1,24 @@
 import os
+import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import UserMixin
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from WaterTesting import app
-db = SQLAlchemy(app)
+from main_site import db
+
+now = datetime.datetime.now
 
 # Base Model class to include boilerplate table fields
-class BaseModel(db.Model)
+class BaseModel(object):
+    id = db.Column(db.Integer, primary_key=True)
+    created = db.Column(db.DateTime(), default=now())
+    modified = db.Column(db.DateTime(), default=now())
+
+
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     created = db.Column(db.DateTime())
     modified = db.Column(db.DateTime())
-
-
-class User(BaseModel, UserMixin):
 
     # User authentication information
     username = db.Column(db.String(50), nullable=False, unique=True)
@@ -32,16 +37,26 @@ class User(BaseModel, UserMixin):
 
 # Table of water source type
 # Public Utility, Shallow Well, etc...
-class Type(BaseModel):
+class SourceType(db.Model, BaseModel):
+
     name = db.Column(db.String(255), nullable=False, server_default='')
+
+    def __str__(self):
+        return self.name
 
 
 # Available water sources
 # Richmond - Public Utility etc.
-class Source(BaseModel):
+class Source(db.Model, BaseModel):
+
     name = db.Column(db.String(255), nullable=False, server_default='')
-    src_type = db.Column(db.Integer, db.ForeignKey('type.id'))
-    samples = db.relationship('Test_Sample', backref="source", cascade="all, delete-orphan" , lazy='dynamic')
+
+    type_id = db.Column(db.Integer, db.ForeignKey('source_type.id'))
+    src_type = db.relationship("SourceType", backref="sources")
+
+    def __str__(self):
+        return '{} [{}]'.format(self.name, self.src_type)
+
 
 # Table for Many-To-Many relationship between test treatments and
 # test samples.
@@ -49,28 +64,39 @@ test_treatment = db.Table(
     'test_treatment',
     db.Column('sample_id', db.Integer, db.ForeignKey('test_sample.id'), nullable=False),
     db.Column('treatment_id',db.Integer, db.ForeignKey('treatment.id'), nullable=False),
-    db.PrimaryKeyConstraint('post_id', 'tags_id')
+    db.PrimaryKeyConstraint('sample_id', 'treatment_id')
 )
 
 
 # Water sample treatment types
 # Charcoal Filter, RO Filter etc.
-class Treatment(BaseModel):
+class Treatment(db.Model, BaseModel):
+
     name = db.Column(db.String(255), nullable=False, server_default='')
 
+    def __str__(self):
+        return self.name
 
-class Test_Sample(BaseModel):
+
+class TestSample(db.Model, BaseModel):
+    
+    sample_date = db.Column(db.DateTime())
     label = db.Column(db.String(12), nullable=True)
-    source = db.Column(db.Integer, db.ForeignKey('source.id'))
-
+    source_id = db.Column(db.Integer, db.ForeignKey('source.id'))
+    source = db.relationship("Source", backref="samples")
     # Can have multiple test result per sample (in case of retest)
-    results = db.relationship('Test_Result', backref="test_sample", cascade="all, delete-orphan" , lazy='dynamic')
+    results = db.relationship('TestResult', backref="test_sample", cascade="all, delete-orphan" , lazy='dynamic')
 
     # Many-To-Many relationship
     treatments = db.relationship('Treatment', secondary=test_treatment, backref='test_sample' )
 
 
-class Test_Result(BaseModel):
+    def __str__(self):
+        return '{} {}'.format(self.sample_date, self.source_id)
+
+
+class TestResult(db.Model, BaseModel):
+
     sample = db.Column(db.Integer, db.ForeignKey('test_sample.id'))
 
     # Recorded Results

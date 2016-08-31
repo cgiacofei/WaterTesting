@@ -1,5 +1,5 @@
 import os
-ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class BaseConfig(object):
     DEBUG = False
@@ -7,7 +7,8 @@ class BaseConfig(object):
 
     # Flask settings
     SECRET_KEY = os.getenv('SECRET_KEY', 'THIS IS AN INSECURE SECRET')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///db.sqlite')
+    
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite'))
     CSRF_ENABLED = True
 
     # Flask-Mail settings

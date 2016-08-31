@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "water/base.html" %}
 {% set active_page = "index" %}
 
 {% block content %}
 <h1>Welcome</h1>
 <p>
 This is a very rough draft for a water testing website. The only menu item that actually does anything
-at the moment is the <a href="{{ url_for('summary', location='richmond') }}">Testing Summaries link</a> which takes
+at the moment is the <a href="{{ url_for('water.summary', location='richmond') }}">Testing Summaries link</a> which takes
 takes you to a set of pages with time series plot for each water source we have data for.
 </p>
 
@@ -13,12 +13,14 @@ takes you to a set of pages with time series plot for each water source we have 
 
 <h3>Most Recent Test Results</h3>
 <ul>
+  {% if recent %}
   {% for record in recent %}
   <li>{{ record.sample_date }}
-    <a href="{{ url_for('result', sample_id=record.sample_id) }}">
+    <a href="{{ url_for('water.result', sample_id=record.sample_id) }}">
      {{ record.sample_location }} {{ record.sample_source }}
     </a>
   </li>
   {% endfor %}
+  {% endif %}
 </ul>
 {% endblock %}

@@ -10,6 +10,7 @@ pip-selfcheck.json
 
 # Data Files
 *.csv
+*.sqlite
 
 # Local Config Files
 client_id.json
@@ -40,7 +41,7 @@ var/
 .installed.cfg
 *.egg
 html/
-WaterTesting/static/img
+main_site/static/img
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
